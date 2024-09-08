@@ -1,0 +1,12 @@
+server:
+  port: 8888
+
+grpc:
+  port: 50051
+
+spring:
+  datasource:
+    url: jdbc:mariadb://49.50.166.122:3306/serverB_db
+    username: ${DB_B_USERNAME}
+    password: ${DB_B_PASSWORD}
+    driver-class-name: org.mariadb.jdbc.Driver
