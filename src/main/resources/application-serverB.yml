@@ -10,3 +10,9 @@ spring:
     username: ${DB_B_USERNAME}
     password: ${DB_B_PASSWORD}
     driver-class-name: org.mariadb.jdbc.Driver
+
+jwt:
+  secret: ${JWT_KEY}
+  token:
+    access-expiration-time: 43200000    # 12시간
+    refresh-expiration-time: 604800000   # 7일
