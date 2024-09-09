@@ -3,12 +3,16 @@ package backend.keumbang.auth.service;
 import backend.keumbang.auth.dto.TokenResponseDto;
 import backend.keumbang.auth.entity.RefreshToken;
 import backend.keumbang.auth.repository.RefreshTokenRepository;
+import backend.keumbang.common.constants.ErrorMessages;
 import backend.keumbang.common.constants.UserRole;
 import backend.keumbang.common.exceptions.GeneralException;
 import backend.keumbang.jwt.JwtTokenProvider;
+import backend.keumbang.jwt.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,6 +22,7 @@ import org.springframework.security.core.Authentication;
 @RequiredArgsConstructor
 public class TokenService {
     private final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenUtil jwtTokenUtil;
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenRepository refreshTokenRepository;
 
@@ -47,4 +52,28 @@ public class TokenService {
         }
     }
 
+    public TokenResponseDto getRefreshToken(String refreshToken) throws Exception {
+        try {
+            // redis 엔티티 조회
+            RefreshToken token = refreshTokenRepository.findById(refreshToken)
+                    .orElseThrow(() -> new Exception(ErrorMessages.JWT_EXPIRED));
+
+            // 권한 추출
+            Authentication authentication = jwtTokenProvider.getAuthentication(token.getAccessToken());
+            String role = authentication.getAuthorities().stream()
+                    .findFirst()
+                    .map(GrantedAuthority::getAuthority)
+                    .orElseThrow(() -> new GeneralException(ErrorMessages.ROLE_NOT_FOUND, HttpStatus.NOT_FOUND));
+
+            // redis AccessToken 업데이트
+            String newAccessToken = jwtTokenProvider.createAccessToken(authentication, role);
+            token.updateAccessToken(newAccessToken);
+            refreshTokenRepository.save(token);
+
+            return new TokenResponseDto(newAccessToken, token.getRefreshToken());
+        } catch (Exception e) {
+            log.error("Error in getRefreshToken ID: {}", e);
+            throw e;
+        }
+    }
 }
