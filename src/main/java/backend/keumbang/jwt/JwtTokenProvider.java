@@ -14,6 +14,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import javax.crypto.SecretKey;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,7 +28,7 @@ public class JwtTokenProvider {
     private final long accessExpirationTime;
     private final long refreshExpirationTime;
 
-    private static final String AUTHORITIES_KEY = "auth";
+    private static final String ROLE_KEY = "role";
 
     @Autowired
     public JwtTokenProvider(
@@ -50,27 +51,25 @@ public class JwtTokenProvider {
     /**
      * Access 토큰 생성
      */
-    public String createAccessToken(Authentication authentication){
-        return this.createToken(authentication, accessExpirationTime);
+    public String createAccessToken(Authentication authentication, String role){
+        return this.createToken(authentication, role, accessExpirationTime);
     }
 
     /**
      * Refresh 토큰 생성
      */
-    public String createRefreshToken(Authentication authentication){
-        return this.createToken(authentication, refreshExpirationTime);
+    public String createRefreshToken(Authentication authentication, String role){
+        return this.createToken(authentication, role, refreshExpirationTime);
     }
 
     /**
      * 토큰 생성
      */
-    public String createToken(Authentication authentication, long expirationTime){
+    public String createToken(Authentication authentication, String role, long expirationTime){
         Claims claims = Jwts.claims().setSubject(authentication.getName()).build();
 
         // 권한 정보를 클레임에 추가
-        claims.put(AUTHORITIES_KEY, authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(",")));
+        claims.put(ROLE_KEY, role);
 
         Date now = new Date();
         Date expireDate = new Date(now.getTime() + expirationTime);
@@ -115,12 +114,10 @@ public class JwtTokenProvider {
                 .parseClaimsJws(jwtToken)
                 .getBody();
 
-        // 권한 추출
-        List<GrantedAuthority> authorities = Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+        // 권한 생성
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + claims.get(ROLE_KEY));
 
         // UsernamePasswordAuthenticationToken 반환
-        return new UsernamePasswordAuthenticationToken(claims.getSubject(), jwtToken, authorities);
+        return new UsernamePasswordAuthenticationToken(claims.getSubject(), jwtToken, Collections.singleton(authority));
     }
 }
