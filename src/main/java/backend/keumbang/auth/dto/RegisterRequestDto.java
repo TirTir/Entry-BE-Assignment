@@ -11,8 +11,8 @@ import backend.keumbang.common.constants.UserRole;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RegisterRequestDto {
-    @NotBlank(message = "아이디를 입력해주세요.")
-    @Size(min = 2, max = 8, message = "아이디는 2~8자 사이로 입력해주세요.")
+    @NotBlank(message = "이름을 입력해주세요.")
+    @Size(min = 2, max = 8, message = "이름을 2~8자 사이로 입력해주세요.")
     private String userName;
 
     // 비밀번호(영문, 특수문자, 숫자 포함 8자 이상)

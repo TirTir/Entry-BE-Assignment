@@ -22,7 +22,7 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public void signup(@RequestBody @Valid RegisterRequestDto requestDto) throws IllegalAccessException {
+    public void signup(@RequestBody @Valid RegisterRequestDto requestDto){
         log.info("[회원가입 요청] 회원명: {}", requestDto.getUserName());
         authService.RegisterService(requestDto);
     }
