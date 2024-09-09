@@ -2,14 +2,16 @@ package backend.keumbang.jwt;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 
-import static org.hibernate.query.sqm.tree.SqmNode.log;
-
+@Slf4j
+@Component
 public class JwtTokenFilter implements Filter {
     private final JwtTokenUtil jwtTokenUtil;
     private final JwtTokenProvider jwtTokenProvider;
