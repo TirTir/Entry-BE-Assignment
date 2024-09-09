@@ -6,11 +6,17 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import javax.crypto.SecretKey;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.hibernate.query.sqm.tree.SqmNode.log;
 
@@ -20,6 +26,8 @@ public class JwtTokenProvider {
     private final SecretKey secretKey;
     private final long accessExpirationTime;
     private final long refreshExpirationTime;
+
+    private static final String AUTHORITIES_KEY = "auth";
 
     @Autowired
     public JwtTokenProvider(
@@ -43,27 +51,29 @@ public class JwtTokenProvider {
      * Access 토큰 생성
      */
     public String createAccessToken(Authentication authentication){
-        Claims claims = Jwts.claims().setSubject(authentication.getName()).build();
-
-        Date now = new Date();
-        Date expireDate = new Date(now.getTime() + accessExpirationTime);
-
-        return Jwts.builder()
-                .setClaims(claims)
-                .setIssuedAt(now)
-                .setExpiration(expireDate)
-                .signWith(secretKey, SignatureAlgorithm.HS512) // HMAC + SHA512
-                .compact();
+        return this.createToken(authentication, accessExpirationTime);
     }
 
     /**
      * Refresh 토큰 생성
      */
     public String createRefreshToken(Authentication authentication){
+        return this.createToken(authentication, refreshExpirationTime);
+    }
+
+    /**
+     * 토큰 생성
+     */
+    public String createToken(Authentication authentication, long expirationTime){
         Claims claims = Jwts.claims().setSubject(authentication.getName()).build();
 
+        // 권한 정보를 클레임에 추가
+        claims.put(AUTHORITIES_KEY, authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(",")));
+
         Date now = new Date();
-        Date expireDate = new Date(now.getTime() + refreshExpirationTime);
+        Date expireDate = new Date(now.getTime() + expirationTime);
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -85,16 +95,32 @@ public class JwtTokenProvider {
                     .getBody();  // 서명 검증
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            log.info("잘못된 JWT 서명입니다.");
+            log.info(String.format("잘못된 JWT 서명입니다."));
         } catch (ExpiredJwtException e) {
-            log.info("만료된 JWT 토큰입니다.");
+            log.info(String.format("만료된 JWT 토큰입니다."));
         } catch (UnsupportedJwtException e) {
-            log.info("지원되지 않는 JWT 토큰 입니다.");
+            log.info(String.format("지원되지 않는 JWT 토큰 입니다."));
         } catch (IllegalArgumentException e) {
-            log.info("JWT 토큰이 잘못되었습니다.");
+            log.info(String.format("JWT 토큰이 잘못되었습니다."));
             e.printStackTrace();
         }
 
         return false;
+    }
+
+    public Authentication getAuthentication(String jwtToken){
+        Claims claims = Jwts.parser()
+                .setSigningKey(secretKey.getEncoded())
+                .build()
+                .parseClaimsJws(jwtToken)
+                .getBody();
+
+        // 권한 추출
+        List<GrantedAuthority> authorities = Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
+
+        // UsernamePasswordAuthenticationToken 반환
+        return new UsernamePasswordAuthenticationToken(claims.getSubject(), jwtToken, authorities);
     }
 }
