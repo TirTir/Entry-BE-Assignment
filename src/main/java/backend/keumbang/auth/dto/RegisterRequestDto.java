@@ -4,6 +4,7 @@ import lombok.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Pattern;
+import backend.keumbang.common.constants.UserRole;
 
 @Getter
 @Builder
@@ -21,4 +22,7 @@ public class RegisterRequestDto {
             message = "비밀번호는 영문자와 특수문자를 포함하여 8자 이상 20자 이하로 입력해주세요."
     )
     private String password;
+
+    @NotBlank(message = "역할을 입력해주세요.")
+    private UserRole role;
 }

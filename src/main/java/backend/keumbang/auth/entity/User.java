@@ -1,5 +1,6 @@
 package backend.keumbang.auth.entity;
 
+import backend.keumbang.common.constants.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,9 +19,12 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "user_name", nullable = false)
+    @Column(name = "user_name", unique = true, nullable = false)
     private String userName;
 
-    @Column(nullable = false)
+    @Column(name = "password", nullable = false)
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 }
