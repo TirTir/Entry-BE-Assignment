@@ -41,7 +41,7 @@ public class AuthService {
         userRepository.save(newUser);
     }
 
-    public void LoginService(LoginRequestDto requestDto) {
+    public TokenResponseDto LoginService(LoginRequestDto requestDto) {
         // 계정 여부 확인
         User user = userRepository.findByUserName(requestDto.getUserName())
                 .orElseThrow(() -> new UsernameNotFoundException(ErrorMessages.USER_NOT_FOUND));
@@ -52,9 +52,11 @@ public class AuthService {
             // 토큰 발급
             TokenResponseDto token = tokenService.getAuthToken(user.getUserName(), requestDto.getPassword(), user.getRole());
 
-            return new TokenResponseDto(token.getAccessToken(), token.getRefreshToken());
+            return token;
         } else {
             throw new BadCredentialsException(ErrorMessages.WRONG_PASSWORD);
         }
     }
+
+
 }
