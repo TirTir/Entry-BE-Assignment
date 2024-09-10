@@ -2,7 +2,8 @@ server:
   port: 8888
 
 grpc:
-  port: 50051
+  server:
+    port: 50051
 
 spring:
   datasource:
