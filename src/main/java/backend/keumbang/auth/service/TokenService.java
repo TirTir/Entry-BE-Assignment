@@ -22,14 +22,17 @@ import org.springframework.security.core.Authentication;
 @RequiredArgsConstructor
 public class TokenService {
     private final JwtTokenProvider jwtTokenProvider;
-    private final JwtTokenUtil jwtTokenUtil;
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenRepository refreshTokenRepository;
 
     public TokenResponseDto getAuthToken(String userName, String password, UserRole role) {
         try {
+            // 인증 시도 로그
+            log.info("Attempting authentication for user: {}", userName);
+
             // 권한 생성 (아이디, 비밀번호)
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userName, password);
+            log.info("authenticationToken: {}", authenticationToken);
             Authentication authentication = authenticationManager.authenticate(authenticationToken);
             log.info("Authentication successful ID: {}", userName);
 
