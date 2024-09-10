@@ -1,7 +1,16 @@
+buildscript {
+	ext {
+		protobufVersion = '4.27.2'
+		protobufPluginVersion = '0.9.4'
+		grpcVersion = '1.65.1'
+	}
+}
+
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.3.3'
 	id 'io.spring.dependency-management' version '1.1.6'
+	id 'com.google.protobuf' version "${protobufPluginVersion}"
 }
 
 group = 'backend'
@@ -13,8 +22,33 @@ java {
 	}
 }
 
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
 repositories {
 	mavenCentral()
+}
+
+protobuf {
+	protoc {
+		artifact = "com.google.protobuf:protoc:${protobufVersion}"
+	}
+	clean {
+		delete generatedFilesBaseDir
+	}
+	plugins {
+		grpc {
+			artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
+		}
+	}
+	generateProtoTasks {
+		all()*.plugins {
+			grpc {}
+		}
+	}
 }
 
 dependencies {
@@ -22,6 +56,21 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	// mapstruct
+	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+
+	// grpc 핵심 라이브러리
+	implementation "com.google.protobuf:protobuf-java-util:${protobufVersion}"
+	implementation "com.google.protobuf:protobuf-java:${protobufVersion}"
+
+	// grpc 서버, 클라이언트 설정
+	implementation 'net.devh:grpc-spring-boot-starter:3.1.0.RELEASE' // Spring Boot와 gRPC의 통합을 간편하게 도와주는 스타터
+	implementation "io.grpc:grpc-netty-shaded:${grpcVersion}" // Netty Shaded 사용(gRPC 서버와 클라이언트의 Netty 전송 계층을 제공)
+	implementation "io.grpc:grpc-protobuf:${grpcVersion}"     // Protobuf 메시지와 gRPC의 통합을 지원
+	implementation "io.grpc:grpc-stub:${grpcVersion}"         // gRPC 클라이언트 스텁을 생성
+	compileOnly 'org.apache.tomcat:annotations-api:6.0.53'    // 이걸 추가해야 gRPC 컴파일시 javax 어노테이션 오류가 발생하지 않는다.
 
 	// MariaDB
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
