@@ -1,4 +1,16 @@
+server:
+  port: 9999
+
+grpc:
+  port: 50052
+
 spring:
+  datasource:
+    url: jdbc:mariadb://49.50.166.122:3306/serverA_db
+    username: ${DB_A_USERNAME}
+    password: ${DB_A_PASSWORD}
+    driver-class-name: org.mariadb.jdbc.Driver
+
   jpa:
     hibernate:
       naming:
@@ -9,10 +21,3 @@ spring:
     properties:
       hibernate:
         format_sql: true # (3) SQL pretty print
-
-  profiles:
-    group:
-      serverA: serverA
-      serverB: serverB
-  datasource:
-    driver-class-name: org.mariadb.jdbc.Driver
