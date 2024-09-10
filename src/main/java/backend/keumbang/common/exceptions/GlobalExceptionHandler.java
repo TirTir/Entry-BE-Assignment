@@ -19,7 +19,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AlreadyExistUserException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)  // HTTP 409 Conflict
+    @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponseDto handleAlreadyExistUserException(AlreadyExistUserException e) {
         return new ErrorResponseDto(e.getMessage(), HttpStatus.CONFLICT);
     }
