@@ -2,7 +2,11 @@ server:
   port: 9999
 
 grpc:
-  port: 50052
+  server:
+    port: 50052
+  client:
+    auth:
+      address: "localhost:50051"  # 접속할 주소
 
 spring:
   datasource:
