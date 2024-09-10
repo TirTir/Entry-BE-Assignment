@@ -1,40 +1,42 @@
 package backend.keumbang.grpc;
 
-import backend.keumbang.auth.entity.User;
+import backend.keumbang.jwt.JwtTokenProvider;
+import backend.keumbang.jwt.JwtTokenUtil;
 import io.grpc.stub.StreamObserver;
 import net.devh.boot.grpc.server.service.GrpcService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @GrpcService
 public class GrpcClientService extends AuthServiceGrpc.AuthServiceImplBase {
+    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
+    public GrpcClientService(JwtTokenProvider jwtTokenProvider, JwtTokenUtil jwtTokenUtil) {
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.jwtTokenUtil = jwtTokenUtil;
+    }
 
     @Override
     public void auth(AuthRequest request, StreamObserver<AuthResponse> responseObserver) {
-        String token = request.getAccessToken();
+        String accessToken = request.getAccessToken();
         AuthResponse.Builder responseBuilder = AuthResponse.newBuilder();
 
-        // 토큰 검증 로직
-        boolean isValid = validateToken(token);
+        // 토큰 유효성 검사
+        if (jwtTokenProvider.validateToken(accessToken)) {
+            String username = jwtTokenUtil.getUsernameFromToken(accessToken);
+            String role = jwtTokenUtil.getRoleFromToken(accessToken);
 
-        if (isValid) {
-            // 토큰이 유효한 경우 사용자 정보 반환
-            User user = User.newBuilder()
-                    .setUserId("user123")
-                    .setUsername("john.doe")
-                    .setRole("admin")
-                    .build();
-
-            responseBuilder.setIsValid(true).setUser(user);
+            responseBuilder.setIsValid(true)
+                    .setUsername(username)
+                    .setRole(role);
         } else {
-            // 토큰이 유효하지 않은 경우
             responseBuilder.setIsValid(false);
         }
+
 
         // 응답 전송
         responseObserver.onNext(responseBuilder.build());
         responseObserver.onCompleted();
-    }
-
-    public AuthResponse validateToken(String accessToken) {
-
     }
 }

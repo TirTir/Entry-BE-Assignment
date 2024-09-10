@@ -19,12 +19,21 @@ public class JwtTokenUtil {
     }
 
     /**
-     * 토큰에서 사용자 정보 추출
+     * 토큰에서 사용자 아이디 추출
      * @param token
      * @return
      */
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
+    }
+
+    /**
+     * 토큰에서 사용자 역할 추출
+     * @param token
+     * @return
+     */
+    public String getRoleFromToken(String token) {
+        return getClaimFromToken(token, claims -> claims.get("role", String.class)); // "role" 클레임에서 역할을 추출
     }
 
     /**
