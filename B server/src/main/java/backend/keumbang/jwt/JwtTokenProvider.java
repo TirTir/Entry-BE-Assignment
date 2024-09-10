@@ -60,16 +60,12 @@ public class JwtTokenProvider {
      * 토큰 생성
      */
     public String createToken(Authentication authentication, String role, long expirationTime){
-        Claims claims = Jwts.claims().setSubject(authentication.getName()).build();
-
-        // 권한 정보를 클레임에 추가
-        claims.put(ROLE_KEY, role);
-
         Date now = new Date();
         Date expireDate = new Date(now.getTime() + expirationTime);
 
         return Jwts.builder()
-                .setClaims(claims)
+                .setSubject(authentication.getName())
+                .claim(ROLE_KEY, role)
                 .setIssuedAt(now)
                 .setExpiration(expireDate)
                 .signWith(secretKey, SignatureAlgorithm.HS512) // HMAC + SHA512

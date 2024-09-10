@@ -1,5 +1,6 @@
 package backend.keumbang.auth.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -23,6 +24,6 @@ public class RegisterRequestDto {
     )
     private String password;
 
-    @NotBlank(message = "역할을 입력해주세요.")
+    @NotNull(message = "역할을 입력해주세요.")
     private UserRole role;
 }
