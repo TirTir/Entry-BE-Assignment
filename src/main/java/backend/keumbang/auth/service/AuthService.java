@@ -14,6 +14,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -41,6 +42,7 @@ public class AuthService {
         userRepository.save(newUser);
     }
 
+    @Transactional
     public TokenResponseDto LoginService(LoginRequestDto requestDto) {
         // 계정 여부 확인
         User user = userRepository.findByUserName(requestDto.getUserName())
@@ -48,6 +50,7 @@ public class AuthService {
 
         boolean passwordMatches = encoder.matches(requestDto.getPassword(), user.getPassword());
         if (passwordMatches) {
+            log.info("Password match: {}", user.getUserName());
 
             // 토큰 발급
             TokenResponseDto token = tokenService.getAuthToken(user.getUserName(), requestDto.getPassword(), user.getRole());
