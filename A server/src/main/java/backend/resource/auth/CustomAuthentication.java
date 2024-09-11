@@ -1,4 +1,4 @@
-package backend.resource.auth.jwt;
+package backend.resource.auth;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

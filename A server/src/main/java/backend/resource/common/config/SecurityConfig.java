@@ -1,8 +1,8 @@
 package backend.resource.common.config;
 
-import backend.resource.auth.jwt.JwtAccessDeniedHandler;
-import backend.resource.auth.jwt.JwtAuthenticationEntryPoint;
-import backend.resource.auth.jwt.JwtTokenFilter;
+import backend.resource.auth.JwtAccessDeniedHandler;
+import backend.resource.auth.JwtAuthenticationEntryPoint;
+import backend.resource.auth.JwtTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

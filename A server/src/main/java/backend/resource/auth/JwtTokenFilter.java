@@ -1,9 +1,10 @@
-package backend.keumbang.jwt;
+package backend.resource.auth;
 
+import backend.keumbang.grpc.AuthResponse;
+import backend.resource.grpc.GrpcClientService;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -13,25 +14,25 @@ import java.io.IOException;
 @Slf4j
 @Component
 public class JwtTokenFilter implements Filter {
-    private final JwtTokenUtil jwtTokenUtil;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final GrpcClientService grpcClientService;
 
-    public JwtTokenFilter(JwtTokenUtil jwtTokenUtil, JwtTokenProvider jwtTokenProvider) {
-        this.jwtTokenUtil = jwtTokenUtil;
-        this.jwtTokenProvider = jwtTokenProvider;
+    public JwtTokenFilter(GrpcClientService grpcClientService) {
+        this.grpcClientService = grpcClientService;
     }
 
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
-        String jwtToken = resolveToken(httpRequest); // JWT 토큰
+        String accessToken = resolveToken(httpRequest); // JWT 토큰
         String requestURI = httpRequest.getRequestURI(); // 요청 URI
 
-        // 토큰 유효성 검사
-        if (StringUtils.hasText(jwtToken) && jwtTokenProvider.validateToken(jwtToken)) {
-            // Authentication 객체 생성
-            Authentication authentication = jwtTokenProvider.getAuthentication(jwtToken);
+        // 토큰 여부 확인
+        if (StringUtils.hasText(accessToken)) {
+            // gRPC 호출
+            AuthResponse authResponse = grpcClientService.verifyToken(accessToken);
+
+            CustomAuthentication authentication = new CustomAuthentication(authResponse.getUsername(), authResponse.getRole());
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.debug(String.format("Security Context에 %s 인증 정보를 저장했습니다. URI : %s", authentication.getName(), requestURI));
+            log.debug(String.format("Security Context에 %s 인증 정보를 저장했습니다. URI : %s", authResponse.getUsername(), requestURI));
         } else {
             log.debug(String.format("유효한 JWT 토큰이 없습니다. URI: %s", requestURI));
         }

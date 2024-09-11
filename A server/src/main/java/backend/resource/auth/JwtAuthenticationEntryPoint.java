@@ -1,4 +1,4 @@
-package backend.resource.auth.jwt;
+package backend.resource.auth;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
