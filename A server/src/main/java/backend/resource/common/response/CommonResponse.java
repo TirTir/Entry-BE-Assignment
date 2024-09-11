@@ -24,7 +24,7 @@ public class CommonResponse<T> {
         return new CommonResponse(success);
     }
 
-    public static<T> CommonResponse<T> pageRes(SuccessCode success, final T data) {
+    public static<T> CommonResponse<T> pageRes(SuccessCode success, final T data, PaginationLinks links) {
         return CommonResponse.<T>builder()
                 .success(success.getSuccess())
                 .message(success.getMessage())

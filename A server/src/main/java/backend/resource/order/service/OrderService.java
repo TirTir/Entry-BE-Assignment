@@ -1,7 +1,7 @@
 package backend.resource.order.service;
 
 import backend.resource.common.constants.ErrorMessages;
-import backend.resource.common.constants.OrderStatus;
+import backend.resource.order.entity.OrderStatus;
 import backend.resource.common.exceptions.GeneralException;
 import backend.resource.order.dto.OrderRequestDto;
 import backend.resource.order.entity.Order;
