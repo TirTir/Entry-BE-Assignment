@@ -1,6 +1,5 @@
 package backend.resource.order.entity;
 
-import backend.resource.common.constants.ItemType;
 import backend.resource.common.constants.OrderStatus;
 import backend.resource.product.entity.Product;
 import jakarta.persistence.*;
@@ -9,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -16,9 +16,11 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "Orders")
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "order_id", nullable = false)
     private long id;
 
     @Column(name = "date", nullable = false)
@@ -32,7 +34,7 @@ public class Order {
     private OrderStatus status; // 상태
 
     @Column(name = "quantity", nullable = false, precision = 10, scale = 2)
-    private Double quantity; // 수량(소수점 두 자리까지)
+    private BigDecimal quantity; // 수량(소수점 두 자리까지)
 
     @Column(name = "total_price", nullable = false)
     private int totalPrice;
