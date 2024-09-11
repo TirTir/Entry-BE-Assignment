@@ -9,11 +9,16 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
     public interface OrderRepository extends JpaRepository<Order, String> {
-        @Query("SELECT o FROM Order o WHERE o.userName = :userName AND o.date = :date")
+        @Query("SELECT o FROM Order o WHERE o.userName = :userName AND o.date >= :startDate AND o.date < :endDate")
         Page<Order> findByUserNameAndDate(
                 @Param("userName") String userName,
-                @Param("date") LocalDateTime date,
+                @Param("startDate") LocalDateTime startDate,
+                @Param("endDate") LocalDateTime endDate,
                 Pageable pageable
         );
-        long countByDate(LocalDateTime date);
+        @Query("SELECT COUNT(o) FROM Order o WHERE o.date >= :startDate AND o.date < :endDate")
+        long countByDate(
+                @Param("startDate") LocalDateTime startDate,
+                @Param("endDate") LocalDateTime endDate
+        );
 }

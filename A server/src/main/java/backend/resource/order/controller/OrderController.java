@@ -15,8 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 
 @Slf4j
 @RestController
@@ -42,11 +44,13 @@ public class OrderController {
 
     @GetMapping("")
     public CommonResponse<List<OrderDetailResponseDto>> orderDetail(
-            @RequestParam(required = false) LocalDateTime date,
+            @RequestParam(required = false) LocalDate date,
             @RequestParam(defaultValue = "10") int limit,
             @RequestParam(defaultValue = "0") int offset,
-            @RequestParam(required = false) String invoiceType
+            @RequestParam(required = false) String type
     ){
+        String invoiceType = (type != null) ? type.toUpperCase(Locale.ROOT) : null;
+
         InvoiceRequestDto requestDto = InvoiceRequestDto.builder()
                 .date(date)
                 .limit(limit)

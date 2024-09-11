@@ -19,6 +19,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,10 +46,14 @@ public class InvoiceService {
 
         // Order 목록을 필터링
         Pageable pageable = PageRequest.of(requestDto.getOffset(), requestDto.getLimit());
+        LocalDate date = requestDto.getDate();
+
         Page<Order> ordersPage = orderRepository.findByUserNameAndDate(
                 authentication.getName(),  // 현재 로그인한 사용자 정보 사용
-                requestDto.getDate(),
-                pageable);
+                date.atStartOfDay(), // 00:00:00
+                date.plusDays(1).atStartOfDay(),
+                pageable
+        );
 
 
         // OrderDetailResponseDto로 변환
@@ -71,8 +77,10 @@ public class InvoiceService {
         int limit = requestDto.getLimit(); // 데이터 시작 지점
 
         // 조건에 맞는 전체 개수
+        LocalDate date = requestDto.getDate();
         long totalItems = orderRepository.countByDate(
-                requestDto.getDate()
+                date.atStartOfDay(),
+                date.plusDays(1).atStartOfDay()
         );
 
         String baseUrl = "/api/order?";
