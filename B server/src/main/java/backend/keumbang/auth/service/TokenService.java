@@ -7,7 +7,6 @@ import backend.keumbang.common.constants.ErrorMessages;
 import backend.keumbang.common.constants.UserRole;
 import backend.keumbang.common.exceptions.GeneralException;
 import backend.keumbang.jwt.JwtTokenProvider;
-import backend.keumbang.jwt.JwtTokenUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
