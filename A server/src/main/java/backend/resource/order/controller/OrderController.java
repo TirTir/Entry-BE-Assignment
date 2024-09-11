@@ -25,7 +25,7 @@ public class OrderController {
     }
 
     @PostMapping("")
-    public void signup(@RequestBody @Valid OrderRequestDto requestDto){
+    public void order(@RequestBody @Valid OrderRequestDto requestDto){
         log.info("[주문 요청] 상품명: {}", requestDto.getProductId());
         orderService.RegisterService(requestDto);
     }
