@@ -14,6 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,17 +31,24 @@ public class InvoiceService {
 
     @Transactional
     public List<OrderDetailResponseDto> OrderDetailService(InvoiceRequestDto requestDto){
-        Pageable pageable = PageRequest.of(requestDto.getOffset(), requestDto.getLimit());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String role = authentication.getAuthorities().stream()
+                .findFirst()
+                .orElseThrow(() -> new GeneralException(ErrorMessages.ROLE_NOT_FOUND, HttpStatus.BAD_REQUEST))
+                .getAuthority();
 
-        if (requestDto.getInvoiceType() != null && !isValidInvoiceType(requestDto.getInvoiceType())) {
+        // 역할에 따른 인보이스 타입 유효성 검사
+        if (requestDto.getInvoiceType() != null && !isValidInvoiceType(role, requestDto.getInvoiceType())) {
             throw new GeneralException(ErrorMessages.INVOICETYPE_NOT_FOUND, HttpStatus.BAD_REQUEST);
         }
 
         // Order 목록을 필터링
-        Page<Order> ordersPage = orderRepository.findByDateAndInvoiceType(
+        Pageable pageable = PageRequest.of(requestDto.getOffset(), requestDto.getLimit());
+        Page<Order> ordersPage = orderRepository.findByUserNameAndDate(
+                authentication.getName(),  // 현재 로그인한 사용자 정보 사용
                 requestDto.getDate(),
-                String.valueOf(requestDto.getInvoiceType()),
                 pageable);
+
 
         // OrderDetailResponseDto로 변환
         return ordersPage.getContent().stream()
@@ -62,9 +71,8 @@ public class InvoiceService {
         int limit = requestDto.getLimit(); // 데이터 시작 지점
 
         // 조건에 맞는 전체 개수
-        long totalItems = orderRepository.countByDateAndInvoiceType(
-                requestDto.getDate(),
-                String.valueOf(requestDto.getInvoiceType())
+        long totalItems = orderRepository.countByDate(
+                requestDto.getDate()
         );
 
         String baseUrl = "/api/order?";
@@ -77,12 +85,24 @@ public class InvoiceService {
         return new PaginationLinks(firstUrl, lastUrl, nextUrl, prevUrl);
     }
 
-    private boolean isValidInvoiceType(String invoiceType) {
-        for (InvoiceType type : InvoiceType.values()) {
-            if (type.equals(invoiceType)) {
-                return true;
-            }
+    private boolean isValidInvoiceType(String role, String type) {
+        InvoiceType invoiceType;
+
+        try {
+            invoiceType = InvoiceType.valueOf(type.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return false;
         }
-        return false;
+
+        switch (role.toLowerCase()) {
+            case "admin":
+                // admin은 판매만 가능
+                return invoiceType == InvoiceType.SALE;
+            case "user":
+                // user는 구매만 가능
+                return invoiceType == InvoiceType.PURCHASE;
+            default:
+                return false;
+        }
     }
 }
