@@ -2,11 +2,12 @@ server:
   port: 9999
 
 grpc:
-  server:
-    port: 50052
+  port: 50052
   client:
-    auth:
-      address: "localhost:50051"  # 접속할 주소
+    authService:
+      address: "localhost:50051" # 접속할 주소
+      enableKeepAlive: true
+      negotiationType: "plaintext" # TLS/SSL 비활성화
 
 spring:
   datasource:
@@ -19,7 +20,7 @@ spring:
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-      ddl-auto: create # (1) 스키마 생성
+      ddl-auto: update # (1) 스키마 생성
     show-sql: true # (2) SQL 쿼리 출력
     generate-ddl: true
     properties:

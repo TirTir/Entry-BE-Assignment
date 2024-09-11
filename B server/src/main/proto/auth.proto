@@ -5,7 +5,7 @@ option java_outer_classname = "AuthProto";
 option java_multiple_files=true;
 
 service AuthService {
-  rpc VerifyToken(AuthRequest) returns (AuthResponse);
+  rpc Auth(AuthRequest) returns (AuthResponse);
 }
 
 // 요청 객체

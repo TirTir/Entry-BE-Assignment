@@ -4,6 +4,9 @@ server:
 grpc:
   server:
     port: 50051
+    security:
+      enabled: false
+    reflectionServiceEnabled: true
 
 spring:
   datasource:

@@ -16,7 +16,6 @@ message AuthRequest {
 // 응답 객체
 message AuthResponse {
   bool isValid = 1;
-  string userId = 2;
-  string username = 3;
-  string role = 4;
+  string username = 2;
+  string role = 3;
 }
