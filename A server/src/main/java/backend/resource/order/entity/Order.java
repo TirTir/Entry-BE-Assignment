@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -14,10 +15,11 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "Orders")
 public class Order {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    @Column(name = "order_id", nullable = false)
+    private String id;
 
     @Column(name = "date", nullable = false)
     private LocalDateTime date; // 주문 일자
@@ -27,10 +29,10 @@ public class Order {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private String status; // 상태
+    private OrderStatus status; // 상태
 
     @Column(name = "quantity", nullable = false, precision = 10, scale = 2)
-    private Double quantity; // 수량(소수점 두 자리까지)
+    private BigDecimal quantity; // 수량(소수점 두 자리까지)
 
     @Column(name = "total_price", nullable = false)
     private int totalPrice;

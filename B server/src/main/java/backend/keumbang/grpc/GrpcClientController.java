@@ -14,7 +14,7 @@ public class GrpcClientController {
     private final GrpcClientService grpcClientService;
 
     @PostMapping("/auth")
-    public void validationToken(AuthRequestDto requestDto) {
+    public void Auth(AuthRequestDto requestDto) {
         // AuthRequest 객체 생성
         AuthRequest authRequest = AuthRequest.newBuilder()
                 .setAccessToken(requestDto.getAccessToken())
