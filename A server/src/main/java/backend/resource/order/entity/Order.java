@@ -1,5 +1,7 @@
 package backend.resource.order.entity;
 
+import backend.resource.common.constants.ItemType;
+import backend.resource.common.constants.OrderStatus;
 import backend.resource.product.entity.Product;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -27,7 +29,7 @@ public class Order {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private String status; // 상태
+    private OrderStatus status; // 상태
 
     @Column(name = "quantity", nullable = false, precision = 10, scale = 2)
     private Double quantity; // 수량(소수점 두 자리까지)
