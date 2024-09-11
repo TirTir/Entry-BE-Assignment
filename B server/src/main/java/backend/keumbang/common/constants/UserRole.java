@@ -1,8 +1,8 @@
 package backend.keumbang.common.constants;
 
 public enum UserRole {
-    ADMIN("관리자"),
-    USER("사용자");
+    ADMIN("판매자"),
+    USER("구매자");
 
     private final String description;
 
