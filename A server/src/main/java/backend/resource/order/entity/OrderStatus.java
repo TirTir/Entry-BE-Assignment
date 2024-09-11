@@ -1,4 +1,6 @@
-package backend.resource.common.constants;
+package backend.resource.order.entity;
+
+import backend.resource.common.constants.Role;
 
 public enum OrderStatus {
     // 구매 주문 상태 (user)

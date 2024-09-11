@@ -1,4 +1,4 @@
-package backend.resource.common.constants;
+package backend.resource.order.entity;
 
 public enum ItemType {
     GOLD_999("99.9% 금"),

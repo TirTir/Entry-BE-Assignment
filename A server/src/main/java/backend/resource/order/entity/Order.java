@@ -1,6 +1,5 @@
 package backend.resource.order.entity;
 
-import backend.resource.common.constants.OrderStatus;
 import backend.resource.product.entity.Product;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

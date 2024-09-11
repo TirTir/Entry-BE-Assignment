@@ -1,6 +1,6 @@
 package backend.resource.product.entity;
 
-import backend.resource.common.constants.ItemType;
+import backend.resource.order.entity.ItemType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
